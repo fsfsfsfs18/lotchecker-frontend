@@ -89,36 +89,9 @@ cropBtn.addEventListener("click", async () => {
  // ------------------------------
 // PREPROCESSING (veilige versie)
 // ------------------------------
-const imgData = ctx.getImageData(0, 0, sw, sh);
-const data = imgData.data;
+ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
-// mild contrast
-const contrast = 1.15;
-
-// adaptive threshold parameters
-const thresholdBias = 15;
-
-for (let i = 0; i < data.length; i += 4) {
-  const r = data[i];
-  const g = data[i + 1];
-  const b = data[i + 2];
-
-  // grayscale
-  let v = 0.299 * r + 0.587 * g + 0.114 * b;
-
-  // mild contrast
-  v = (v - 128) * contrast + 128;
-
-  // adaptive threshold (soft)
-  const t = 128 - thresholdBias;
-  v = v < t ? v * 0.85 : v * 1.1;
-
-  v = Math.max(0, Math.min(255, v));
-
-  data[i] = data[i + 1] = data[i + 2] = v;
-}
-
-ctx.putImageData(imgData, 0, 0);
+// Geen preprocessing — Vision werkt beter met originele pixels
   // ------------------------------
   // OCR upload
   // ------------------------------
