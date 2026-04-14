@@ -17,16 +17,26 @@ async function googleVisionOCRFromBlob(blob) {
 }
 
 // -------------------------------
-// 2. Live Camera Setup
+// 2. Live Camera Setup (BACK CAMERA)
 // -------------------------------
 const video = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const captureBtn = document.getElementById("captureBtn");
 const liveOutput = document.getElementById("liveOutput");
 
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => video.srcObject = stream);
-
+navigator.mediaDevices.getUserMedia({
+  video: {
+    facingMode: { exact: "environment" }
+  }
+})
+.then(stream => {
+  video.srcObject = stream;
+})
+.catch(err => {
+  console.warn("Environment camera not available, using default camera:", err);
+  return navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => video.srcObject = stream);
+});
 // Capture + OCR
 captureBtn.addEventListener("click", async () => {
   const ctx = canvas.getContext("2d");
