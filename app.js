@@ -1,6 +1,6 @@
-// -------------------------------
+// --------------------------------------
 // 1. OCR ENDPOINT (Vercel)
-// -------------------------------
+// --------------------------------------
 const OCR_ENDPOINT = "https://lotchecker-serverless.vercel.app/api/ocr";
 
 async function googleVisionOCRFromBlob(blob) {
@@ -16,14 +16,15 @@ async function googleVisionOCRFromBlob(blob) {
   return (data.text || "").trim();
 }
 
-// -------------------------------
+// --------------------------------------
 // 2. Live Camera Setup (BACK CAMERA)
-// -------------------------------
+// --------------------------------------
 const video = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const captureBtn = document.getElementById("captureBtn");
 const liveOutput = document.getElementById("liveOutput");
 
+// Probeer eerst de achtercamera
 navigator.mediaDevices.getUserMedia({
   video: {
     facingMode: { exact: "environment" }
@@ -34,9 +35,12 @@ navigator.mediaDevices.getUserMedia({
 })
 .catch(err => {
   console.warn("Environment camera not available, using default camera:", err);
-  return navigator.mediaDevices.getUserMedia({ video: true })
+
+  // Fallback voor laptops of toestellen zonder achtercamera
+  navigator.mediaDevices.getUserMedia({ video: true })
     .then(stream => video.srcObject = stream);
 });
+
 // Capture + OCR
 captureBtn.addEventListener("click", async () => {
   const ctx = canvas.getContext("2d");
@@ -50,9 +54,9 @@ captureBtn.addEventListener("click", async () => {
   }, "image/jpeg");
 });
 
-// -------------------------------
+// --------------------------------------
 // 3. Foto 1 OCR
-// -------------------------------
+// --------------------------------------
 document.getElementById("file1").addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -61,9 +65,9 @@ document.getElementById("file1").addEventListener("change", async (e) => {
   document.getElementById("output1").value = text;
 });
 
-// -------------------------------
+// --------------------------------------
 // 4. Foto 2 OCR
-// -------------------------------
+// --------------------------------------
 document.getElementById("file2").addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -72,9 +76,9 @@ document.getElementById("file2").addEventListener("change", async (e) => {
   document.getElementById("output2").value = text;
 });
 
-// -------------------------------
+// --------------------------------------
 // 5. Vergelijking
-// -------------------------------
+// --------------------------------------
 document.getElementById("compareBtn").addEventListener("click", () => {
   const t1 = document.getElementById("output1").value.trim();
   const t2 = document.getElementById("output2").value.trim();
