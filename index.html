@@ -2,42 +2,24 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Lotchecker</title>
+  <title>Lotchecker – Crop Upload</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Lotchecker</h1>
 
-  <section>
-    <h2>Foto 1</h2>
-    <input type="file" id="file1" accept="image/*">
-    <textarea id="output1" placeholder="OCR resultaat foto 1"></textarea>
-  </section>
+<h1>Foto upload + crop</h1>
 
-  <section>
-    <h2>Foto 2</h2>
-    <input type="file" id="file2" accept="image/*">
-    <textarea id="output2" placeholder="OCR resultaat foto 2"></textarea>
-  </section>
+<input type="file" id="fileInput" accept="image/*">
 
-  <section>
-    <button id="compareBtn">Vergelijk lotnummers</button>
-    <div id="compareResult"></div>
-  </section>
+<div id="imageContainer">
+  <img id="uploadedImage">
+  <div id="cropBox"></div>
+</div>
 
-  <hr>
+<button id="cropBtn">OCR op geselecteerd gebied</button>
 
-  <section>
-    <h2>Live camera scan</h2>
-    <div id="cameraWrapper">
-      <video id="camera" autoplay playsinline></video>
-      <div id="scanBox"></div>
-    </div>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <button id="captureBtn">Scan lotnummer</button>
-    <textarea id="liveOutput" placeholder="OCR resultaat live scan"></textarea>
-  </section>
+<textarea id="ocrOutput" placeholder="OCR resultaat"></textarea>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
