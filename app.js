@@ -86,64 +86,39 @@ cropBtn.addEventListener("click", async () => {
 
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
-  // ------------------------------
-  // PREPROCESSING
-  // ------------------------------
-  const imgData = ctx.getImageData(0, 0, sw, sh);
-  const data = imgData.data;
+ // ------------------------------
+// PREPROCESSING (veilige versie)
+// ------------------------------
+const imgData = ctx.getImageData(0, 0, sw, sh);
+const data = imgData.data;
 
-  const contrast = 1.5; // iets sterker dan vorige versie
-  const sharpen = true;
+// mild contrast
+const contrast = 1.15;
 
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
+// adaptive threshold parameters
+const thresholdBias = 15;
 
-    // grayscale
-    let v = 0.299 * r + 0.587 * g + 0.114 * b;
+for (let i = 0; i < data.length; i += 4) {
+  const r = data[i];
+  const g = data[i + 1];
+  const b = data[i + 2];
 
-    // contrast
-    v = (v - 128) * contrast + 128;
-    v = Math.max(0, Math.min(255, v));
+  // grayscale
+  let v = 0.299 * r + 0.587 * g + 0.114 * b;
 
-    data[i] = data[i + 1] = data[i + 2] = v;
-  }
+  // mild contrast
+  v = (v - 128) * contrast + 128;
 
-  // simpele sharpening kernel
-  if (sharpen) {
-    const w = sw;
-    const h = sh;
-    const copy = new Uint8ClampedArray(data);
+  // adaptive threshold (soft)
+  const t = 128 - thresholdBias;
+  v = v < t ? v * 0.85 : v * 1.1;
 
-    const kernel = [
-      0, -1, 0,
-      -1, 5, -1,
-      0, -1, 0
-    ];
+  v = Math.max(0, Math.min(255, v));
 
-    for (let y = 1; y < h - 1; y++) {
-      for (let x = 1; x < w - 1; x++) {
-        let idx = (y * w + x) * 4;
+  data[i] = data[i + 1] = data[i + 2] = v;
+}
 
-        let sum = 0;
-        let k = 0;
-
-        for (let ky = -1; ky <= 1; ky++) {
-          for (let kx = -1; kx <= 1; kx++) {
-            const i2 = ((y + ky) * w + (x + kx)) * 4;
-            sum += copy[i2] * kernel[k++];
-          }
-        }
-
-        const v = Math.max(0, Math.min(255, sum));
-        data[idx] = data[idx + 1] = data[idx + 2] = v;
-      }
-    }
-  }
-
-  ctx.putImageData(imgData, 0, 0);
-
+ctx.putImageData(imgData, 0, 0);
   // ------------------------------
   // OCR upload
   // ------------------------------
