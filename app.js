@@ -1,5 +1,5 @@
 // --------------------------------------
-// 1. OCR ENDPOINT (Vercel)
+// 1. OCR ENDPOINT (Vercel REST API)
 // --------------------------------------
 const OCR_ENDPOINT = "https://lotchecker-serverless.vercel.app/api/ocr";
 
@@ -45,7 +45,6 @@ const liveOutput = document.getElementById("liveOutput");
 
 async function startCamera() {
   try {
-    // Probeer eerst de achtercamera
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: "environment" }
     });
@@ -53,7 +52,6 @@ async function startCamera() {
     console.log("Achtercamera gestart");
   } catch (err) {
     console.warn("Achtercamera mislukt, fallback naar standaard camera:", err);
-
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
     console.log("Fallback camera gestart");
