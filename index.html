@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lotchecker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <h1>Lotchecker</h1>
 
-  <div class="section">
-    <h2>📸 Live Camera</h2>
-    <video id="camera" autoplay playsinline></video>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <button id="captureBtn">Capture</button>
+  <section>
+    <h2>Foto 1</h2>
+    <input type="file" id="file1" accept="image/*">
+    <textarea id="output1" placeholder="OCR resultaat foto 1"></textarea>
+  </section>
 
-    <h3>OCR Result (Live)</h3>
-    <textarea id="liveOutput"></textarea>
-  </div>
+  <section>
+    <h2>Foto 2</h2>
+    <input type="file" id="file2" accept="image/*">
+    <textarea id="output2" placeholder="OCR resultaat foto 2"></textarea>
+  </section>
 
-  <div class="section">
-    <h2>📁 Foto 1</h2>
-    <input type="file" id="file1" accept="image/*" capture="environment">
-    <textarea id="output1"></textarea>
-  </div>
-
-  <div class="section">
-    <h2>📁 Foto 2</h2>
-    <input type="file" id="file2" accept="image/*" capture="environment">
-    <textarea id="output2"></textarea>
-  </div>
-
-  <div class="section">
-    <h2>🔍 Vergelijking</h2>
-    <button id="compareBtn">Vergelijk</button>
+  <section>
+    <button id="compareBtn">Vergelijk lotnummers</button>
     <div id="compareResult"></div>
-  </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>Live camera scan</h2>
+    <div id="cameraWrapper">
+      <video id="camera" autoplay playsinline></video>
+      <div id="scanBox"></div>
+    </div>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <button id="captureBtn">Scan lotnummer</button>
+    <textarea id="liveOutput" placeholder="OCR resultaat live scan"></textarea>
+  </section>
 
   <script src="app.js"></script>
 </body>
