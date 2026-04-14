@@ -1,14 +1,21 @@
 const OCR_ENDPOINT = "https://lotchecker-serverless.vercel.app/api/ocr";
 
 const fileInput = document.getElementById("fileInput");
-const uploadedImage = document.getElementById("uploadedImage");
-const imageContainer = document.getElementById("imageContainer");
-const cropBox = document.getElementById("cropBox");
+const canvas = document.getElementById("imageCanvas");
+const ctx = canvas.getContext("2d");
+const container = document.getElementById("cropperContainer");
+const cropFrame = document.getElementById("cropFrame");
 const cropBtn = document.getElementById("cropBtn");
 const ocrOutput = document.getElementById("ocrOutput");
 
-let startX, startY, endX, endY;
+let img = new Image();
+let scale = 1;
+let minScale = 1;
+let offsetX = 0;
+let offsetY = 0;
 let isDragging = false;
+let lastX = 0;
+let lastY = 0;
 
 // ------------------------------
 // 1. Foto laden
@@ -18,86 +25,152 @@ fileInput.addEventListener("change", (e) => {
   if (!file) return;
 
   const url = URL.createObjectURL(file);
-  uploadedImage.src = url;
-  imageContainer.style.display = "block";
+  img.src = url;
+
+  img.onload = () => {
+    setupCanvas();
+    draw();
+  };
 });
 
 // ------------------------------
-// 2. Crop-kader tekenen
+// 2. Canvas setup
 // ------------------------------
-imageContainer.addEventListener("mousedown", (e) => {
+function setupCanvas() {
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+
+  const scaleX = canvas.width / img.width;
+  const scaleY = canvas.height / img.height;
+
+  minScale = Math.max(scaleX, scaleY);
+  scale = minScale;
+
+  offsetX = (canvas.width - img.width * scale) / 2;
+  offsetY = (canvas.height - img.height * scale) / 2;
+}
+
+// ------------------------------
+// 3. Teken functie
+// ------------------------------
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(
+    img,
+    offsetX,
+    offsetY,
+    img.width * scale,
+    img.height * scale
+  );
+}
+
+// ------------------------------
+// 4. Pan (slepen)
+// ------------------------------
+container.addEventListener("mousedown", (e) => {
   isDragging = true;
-
-  const rect = imageContainer.getBoundingClientRect();
-  startX = e.clientX - rect.left;
-  startY = e.clientY - rect.top;
-
-  cropBox.style.left = startX + "px";
-  cropBox.style.top = startY + "px";
-  cropBox.style.width = "0px";
-  cropBox.style.height = "0px";
-  cropBox.style.display = "block";
+  lastX = e.clientX;
+  lastY = e.clientY;
 });
 
-imageContainer.addEventListener("mousemove", (e) => {
+container.addEventListener("mousemove", (e) => {
   if (!isDragging) return;
 
-  const rect = imageContainer.getBoundingClientRect();
-  endX = e.clientX - rect.left;
-  endY = e.clientY - rect.top;
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
 
-  const w = endX - startX;
-  const h = endY - startY;
+  offsetX += dx;
+  offsetY += dy;
 
-  cropBox.style.width = Math.abs(w) + "px";
-  cropBox.style.height = Math.abs(h) + "px";
-  cropBox.style.left = (w < 0 ? endX : startX) + "px";
-  cropBox.style.top = (h < 0 ? endY : startY) + "px";
+  lastX = e.clientX;
+  lastY = e.clientY;
+
+  draw();
 });
 
-imageContainer.addEventListener("mouseup", () => {
+container.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+// Touch
+container.addEventListener("touchstart", (e) => {
+  isDragging = true;
+  lastX = e.touches[0].clientX;
+  lastY = e.touches[0].clientY;
+});
+
+container.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+
+  const dx = e.touches[0].clientX - lastX;
+  const dy = e.touches[0].clientY - lastY;
+
+  offsetX += dx;
+  offsetY += dy;
+
+  lastX = e.touches[0].clientX;
+  lastY = e.touches[0].clientY;
+
+  draw();
+});
+
+container.addEventListener("touchend", () => {
   isDragging = false;
 });
 
 // ------------------------------
-// 3. Crop uitvoeren + PREPROCESSING + OCR
+// 5. Zoom (scroll + pinch)
 // ------------------------------
-cropBtn.addEventListener("click", async () => {
-  if (!uploadedImage.src) return;
+container.addEventListener("wheel", (e) => {
+  e.preventDefault();
 
-  const img = uploadedImage;
-  const rect = imageContainer.getBoundingClientRect();
-  const cropRect = cropBox.getBoundingClientRect();
+  const zoomFactor = 1.1;
+  const mouseX = e.clientX - container.getBoundingClientRect().left;
+  const mouseY = e.clientY - container.getBoundingClientRect().top;
 
-  // verhouding tussen scherm en echte foto
-  const scaleX = img.naturalWidth / rect.width;
-  const scaleY = img.naturalHeight / rect.height;
+  const prevScale = scale;
 
-  const sx = (cropRect.left - rect.left) * scaleX;
-  const sy = (cropRect.top - rect.top) * scaleY;
-  const sw = cropRect.width * scaleX;
-  const sh = cropRect.height * scaleY;
+  if (e.deltaY < 0) scale *= zoomFactor;
+  else scale /= zoomFactor;
 
-  // canvas maken
-  const canvas = document.createElement("canvas");
-  canvas.width = sw;
-  canvas.height = sh;
-  const ctx = canvas.getContext("2d");
+  if (scale < minScale) scale = minScale;
 
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+  offsetX = mouseX - ((mouseX - offsetX) * scale) / prevScale;
+  offsetY = mouseY - ((mouseY - offsetY) * scale) / prevScale;
 
- // ------------------------------
-// PREPROCESSING (veilige versie)
+  draw();
+});
+
 // ------------------------------
-ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+// 6. Crop uitvoeren
+// ------------------------------
+cropBtn.addEventListener("click", () => {
+  const rect = cropFrame.getBoundingClientRect();
+  const cont = container.getBoundingClientRect();
 
-// Geen preprocessing — Vision werkt beter met originele pixels
-  // ------------------------------
-  // OCR upload
-  // ------------------------------
-  canvas.toBlob(async (blob) => {
-    if (!blob) return;
+  const cropX = rect.left - cont.left;
+  const cropY = rect.top - cont.top;
+  const cropW = rect.width;
+  const cropH = rect.height;
 
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = cropW;
+  tempCanvas.height = cropH;
+  const tctx = tempCanvas.getContext("2d");
+
+  tctx.drawImage(
+    canvas,
+    cropX,
+    cropY,
+    cropW,
+    cropH,
+    0,
+    0,
+    cropW,
+    cropH
+  );
+
+  tempCanvas.toBlob(async (blob) => {
     const formData = new FormData();
     formData.append("image", blob);
 
@@ -107,8 +180,6 @@ ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
     });
 
     const data = await response.json();
-    console.log("OCR:", data);
-
     ocrOutput.value =
       data.lotNumber ||
       data.date ||

@@ -2,21 +2,21 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Lotchecker – Crop Upload</title>
+  <title>Professionele Cropper</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Foto upload + crop</h1>
+<h1>Professionele Cropper (iOS‑stijl)</h1>
 
 <input type="file" id="fileInput" accept="image/*">
 
-<div id="imageContainer">
-  <img id="uploadedImage">
-  <div id="cropBox"></div>
+<div id="cropperContainer">
+  <canvas id="imageCanvas"></canvas>
+  <div id="cropFrame"></div>
 </div>
 
-<button id="cropBtn">OCR op geselecteerd gebied</button>
+<button id="cropBtn">OCR uitvoeren</button>
 
 <textarea id="ocrOutput" placeholder="OCR resultaat"></textarea>
 
