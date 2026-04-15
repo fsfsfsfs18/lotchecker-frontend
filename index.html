@@ -2,14 +2,32 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Professionele Cropper</title>
+  <title>Professionele Cropper + Dot-Matrix OCR</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Professionele Cropper (iOS‑stijl)</h1>
+<h1>Professionele Cropper (iOS-stijl) + Dot-Matrix OCR</h1>
 
 <input type="file" id="fileInput" accept="image/*">
+
+<div id="controls">
+  <fieldset>
+    <legend>OCR modus</legend>
+    <label>
+      <input type="radio" name="ocrMode" value="normal" checked>
+      Normaal (geen extra filter)
+    </label>
+    <label>
+      <input type="radio" name="ocrMode" value="dot">
+      Dot-matrix geforceerd
+    </label>
+    <label>
+      <input type="radio" name="ocrMode" value="auto">
+      Auto (detecteert zelf dot-matrix)
+    </label>
+  </fieldset>
+</div>
 
 <div id="cropperContainer">
   <canvas id="imageCanvas"></canvas>

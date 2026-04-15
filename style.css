@@ -1,8 +1,39 @@
 body {
-  font-family: system-ui;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   max-width: 900px;
   margin: 20px auto;
   padding: 0 16px;
+}
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+#controls {
+  margin-top: 10px;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+fieldset legend {
+  padding: 0 4px;
+  font-size: 13px;
+}
+
+fieldset label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+  font-size: 13px;
+}
+
+fieldset input[type="radio"] {
+  margin-right: 4px;
 }
 
 #cropperContainer {
@@ -29,6 +60,23 @@ body {
   top: 30%;
   left: 15%;
   pointer-events: none;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.55); /* donkere overlay buiten kader */
+}
+
+button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #00b894;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #019172;
 }
 
 textarea {
@@ -36,4 +84,7 @@ textarea {
   min-height: 120px;
   margin-top: 20px;
   font-family: monospace;
+  font-size: 13px;
+  padding: 8px;
+  box-sizing: border-box;
 }
